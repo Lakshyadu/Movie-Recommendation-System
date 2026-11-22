@@ -1,122 +1,137 @@
-# Movie-Recommendation-System
+<div align="center">
 
-# About this Project
+# 🎬 End-to-End Movie Recommendation System
 
-Movie recommendation systems are designed to provide personalized movie suggestions to users, enhancing their entertainment experience by helping them discover movies tailored to their preferences. This project showcases the development of a Movie Recommendation System using various machine-learning models and techniques. 
+**Content-based movie recommendations, rich cast details and review sentiment analysis, served through a Flask web app.**
 
-The primary goal of this project is to build a robust movie recommendation system that can analyze user preferences and viewing history to make accurate movie suggestions. It utilizes popular machine-learning algorithms to classify movies and generate personalized recommendations.
+![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-Web%20App-000000?logo=flask&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-1.2.2-F7931E?logo=scikitlearn&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
+![License](https://img.shields.io/badge/License-GPL%20v3-blue)
 
-## Built-With
+<img src="infographic.svg" alt="Project infographic: how the recommendation system works" width="100%">
 
- - Flask
- - Numpy
- - Scipy
- - Nltk
- - Scikit-learn==1.2.2
- - Pandas
- - Beautifulsoup4
- - tmdbv3api
- - DVC
+</div>
 
- Anyways you can install all the libraries mentioned above at a glance by executing the following command:
- 
-  ```sh
-  pip install -r requirements.txt
-  ```
+---
 
-## Getting Started
+## 📖 Overview
 
-This will help you understand how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+This project helps users discover movies they are likely to enjoy. Enter a movie title and the app will:
 
-## Installation Steps
+1. **Recommend** the 10 most similar movies using content-based filtering.
+2. **Enrich** the result with posters, genres, ratings, runtime, overview and cast biographies from [TMDB](https://www.themoviedb.org/).
+3. **Analyse** user reviews scraped from IMDb and label each one as **Good** or **Bad** using a trained NLP sentiment model.
 
-### Option 1: Installation from GitHub
+## ✨ Features
 
-Follow these steps to install and set up the project directly from the GitHub repository:
+| Feature | Description |
+|---|---|
+| 🔎 Smart search | Auto-complete suggestions built from the movie dataset |
+| 🤝 Content-based recommendations | `CountVectorizer` + cosine similarity over combined movie metadata |
+| 🎭 Cast & movie details | Posters, cast profiles, birthdays, birthplaces and biographies |
+| 💬 Review sentiment | IMDb reviews classified as Good / Bad by a pre-trained model |
+| 🐳 Docker support | One-command deployment from DockerHub |
+| 📦 Reproducible pipeline | DVC for data and artifact versioning |
 
-1. **Clone the Repository**
-   - Open your terminal or command prompt.
-   - Navigate to the directory where you want to install the project.
-   - Run the following command to clone the GitHub repository:
-     ```
-     git clone https://github.com/KalyanMurapaka45/End-to-End-Movie-Recommendation-System.git
-     ```
+## 🧠 How It Works
 
-2. **Create a Virtual Environment** (Optional but recommended)
-   - It's a good practice to create a virtual environment to manage project dependencies. Run the following command:
-     ```
-     conda create -p <Environment_Name> python==<python version> -y
-     ```
+```
+User ─► Flask (/similarity) ─► Cosine similarity on main_data.csv ─► Top 10 similar titles
+     └► Flask (/recommend)  ─► TMDB details + IMDb reviews ─► Sentiment model ─► Results page
+```
 
-3. **Activate the Virtual Environment** (Optional)
-   - Activate the virtual environment based on your operating system:
-       ```
-       conda activate <Environment_Name>/
-       ```
+- **Recommendation engine** – movie metadata is combined into a single `comb` text field, vectorised with `CountVectorizer`, and compared with cosine similarity. The requested movie is excluded and the next 10 closest matches are returned.
+- **Sentiment analysis** – each scraped review is transformed with a saved vectorizer (`tranform.pkl`) and classified by a saved model (`nlp_model.pkl`).
 
-4. **Install Dependencies**
-   - Navigate to the project directory:
-     ```
-     cd [project_directory]
-     ```
-   - Run the following command to install project dependencies:
-     ```
-     pip install -r requirements.txt
-     ```
+## 📁 Project Structure
 
-5. **Run the Project**
-   - Start the project by running the appropriate command.
-     ```
-     python app.py
-     ```
+```
+.
+├── app.py                      # Flask application
+├── Artifacts/                  # main_data.csv, nlp_model.pkl, tranform.pkl
+├── NoteBook_Experiments/       # Recommendation & sentiment analysis notebooks
+├── static/                     # CSS / JS assets
+├── templates/                  # HTML templates (home, recommend)
+├── infographic.svg             # Project infographic
+├── Dockerfile
+├── requirements.txt
+└── template.py                 # Project scaffolding script
+```
 
-6. **Access the Project**
-   - Open a web browser or the appropriate client to access the project.
-  
-<br><br>
-### Option 2: Installation from DockerHub
+## 🛠️ Tech Stack
 
-If you prefer to use Docker, you can install and run the project using a Docker container from DockerHub:
+Flask · scikit-learn · Pandas · NumPy · SciPy · NLTK · BeautifulSoup4 · lxml · tmdbv3api · Docker · DVC
 
-1. **Pull the Docker Image**
-   - Open your terminal or command prompt.
-   - Run the following command to pull the Docker image from DockerHub:
-     ```
-     docker pull kalyan45/movierecommend-app
-     ```
+## 🚀 Getting Started
 
-2. **Run the Docker Container**
-   - Start the Docker container by running the following command, and mapping any necessary ports:
-     ```
-     docker run -p 5000:5000 kalyan45/movierecommend-app
-     ```
+### Option 1 — Run locally
 
-3. **Access the Project**
-   - Open a web browser or the appropriate client to access the project.
+```bash
+# 1. Clone the repository
+git clone https://github.com/KalyanMurapaka45/End-to-End-Movie-Recommendation-System.git
+cd End-to-End-Movie-Recommendation-System
 
+# 2. (Recommended) Create and activate a virtual environment
+conda create -p venv python=3.8 -y
+conda activate ./venv
 
+# 3. Install dependencies
+pip install -r requirements.txt
 
-   
-# Contributing
+# 4. Start the app
+python app.py
+```
 
-Contributions make the open-source community such an amazing place to learn, inspire, and create. I would greatly appreciate any contributions you make.
+Then open **http://localhost:5000** in your browser.
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+### Option 2 — Run with Docker
 
-1. Fork the Project
-2. Create your Feature Branch 
-3. Commit your Changes 
-4. Push to the Branch 
+```bash
+docker pull kalyan45/movierecommend-app
+docker run -p 5000:5000 kalyan45/movierecommend-app
+```
+
+Then open **http://localhost:5000**.
+
+## 🔌 API Endpoints
+
+| Route | Method | Purpose |
+|---|---|---|
+| `/` , `/home` | GET | Home page with search and auto-complete |
+| `/similarity` | POST | Returns the 10 most similar movies for a given title |
+| `/recommend` | POST | Renders the results page with details, cast and review sentiment |
+
+## 🗺️ Roadmap
+
+- [ ] Cache IMDb reviews to reduce scraping latency
+- [ ] Add collaborative filtering and a hybrid recommender
+- [ ] Add automated tests and CI
+- [ ] Move configuration (API keys, ports) to environment variables
+
+## 🤝 Contributing
+
+Contributions are welcome!
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m "Add AmazingFeature"`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<!-- LICENSE -->
-# License
+You can also open an issue with the `enhancement` tag.
 
-Distributed under the GNU General Public License v3.0. See `LICENSE.txt` for more information.
+## 📄 License
 
-# Acknowledgements
+Distributed under the **GNU General Public License v3.0**. See [`LICENSE`](LICENSE) for details.
 
-This project was inspired by the Kaggle dataset on Spam Email Detection and the corresponding competition. We also acknowledge the open-source Python libraries used in this project and their contributors.
+## 🙏 Acknowledgements
 
+- [TMDB](https://www.themoviedb.org/) for movie and cast metadata
+- [IMDb](https://www.imdb.com/) for user reviews
+- The open-source maintainers of Flask, scikit-learn, Pandas, NLTK and the rest of the stack
+
+---
+
+<div align="center">⭐ If you find this project useful, please give it a star!</div>
