@@ -1,14 +1,15 @@
 <div align="center">
 
-# 🎬 End-to-End Movie Recommendation System
+# 🎬 Movie Recommendation System
 
 **Content-based movie recommendations, rich cast details and review sentiment analysis, served through a Flask web app.**
 
 ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-Web%20App-000000?logo=flask&logoColor=white)
-![scikit-learn](https://img.shields.io/badge/scikit--learn-1.2.2-F7931E?logo=scikitlearn&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-NLP%20%26%20ML-F7931E?logo=scikitlearn&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-GPL%20v3-blue)
+![Stars](https://img.shields.io/github/stars/Lakshyadu/Movie-Recommendation-System?style=social)
 
 <img src="infographic.svg" alt="Project infographic: how the recommendation system works" width="100%">
 
@@ -18,46 +19,59 @@
 
 ## 📖 Overview
 
-This project helps users discover movies they are likely to enjoy. Enter a movie title and the app will:
+Type in a movie you like and the app will:
 
-1. **Recommend** the 10 most similar movies using content-based filtering.
-2. **Enrich** the result with posters, genres, ratings, runtime, overview and cast biographies from [TMDB](https://www.themoviedb.org/).
-3. **Analyse** user reviews scraped from IMDb and label each one as **Good** or **Bad** using a trained NLP sentiment model.
+1. **Recommend** the 10 most similar movies from a dataset of roughly 6,000 titles, using content-based filtering on director, lead cast and genres.
+2. **Enrich** each result with posters, genres, ratings, runtime, overview and cast biographies from [TMDB](https://www.themoviedb.org/).
+3. **Analyse** user reviews scraped from IMDb and label each one as **Good** or **Bad** with a trained NLP sentiment model.
 
 ## ✨ Features
 
 | Feature | Description |
 |---|---|
 | 🔎 Smart search | Auto-complete suggestions built from the movie dataset |
-| 🤝 Content-based recommendations | `CountVectorizer` + cosine similarity over combined movie metadata |
+| 🤝 Content-based recommendations | `CountVectorizer` + cosine similarity over director, top 3 actors and genres |
 | 🎭 Cast & movie details | Posters, cast profiles, birthdays, birthplaces and biographies |
 | 💬 Review sentiment | IMDb reviews classified as Good / Bad by a pre-trained model |
-| 🐳 Docker support | One-command deployment from DockerHub |
+| 🐳 Docker support | Ships with a `Dockerfile` for containerised runs |
 | 📦 Reproducible pipeline | DVC for data and artifact versioning |
 
 ## 🧠 How It Works
 
 ```
-User ─► Flask (/similarity) ─► Cosine similarity on main_data.csv ─► Top 10 similar titles
-     └► Flask (/recommend)  ─► TMDB details + IMDb reviews ─► Sentiment model ─► Results page
+Browser (JS) ──► TMDB API ──► movie, cast & poster details
+     │
+     ├──► Flask /similarity ──► cosine similarity on main_data.csv ──► Top 10 similar titles
+     │
+     └──► Flask /recommend  ──► IMDb reviews (BeautifulSoup) ──► Sentiment model ──► Results page
 ```
 
-- **Recommendation engine** – movie metadata is combined into a single `comb` text field, vectorised with `CountVectorizer`, and compared with cosine similarity. The requested movie is excluded and the next 10 closest matches are returned.
+- **Recommendation engine** – director, actors and genres are combined into a single `comb` text field, vectorised with `CountVectorizer` and compared using cosine similarity. The requested movie is excluded and the 10 closest matches are returned.
 - **Sentiment analysis** – each scraped review is transformed with a saved vectorizer (`tranform.pkl`) and classified by a saved model (`nlp_model.pkl`).
+- **Front end** – `static/autocomplete.js` powers search suggestions and `static/recommend.js` calls TMDB and posts the collected details to Flask.
 
 ## 📁 Project Structure
 
 ```
 .
-├── app.py                      # Flask application
-├── Artifacts/                  # main_data.csv, nlp_model.pkl, tranform.pkl
-├── NoteBook_Experiments/       # Recommendation & sentiment analysis notebooks
-├── static/                     # CSS / JS assets
-├── templates/                  # HTML templates (home, recommend)
-├── infographic.svg             # Project infographic
+├── app.py                       # Flask application
+├── Artifacts/                   # Dataset and trained models
+│   ├── main_data.csv            #   movie metadata + combined features
+│   ├── movies.csv
+│   ├── reviews.txt
+│   ├── nlp_model.pkl            #   sentiment classifier
+│   └── tranform.pkl             #   fitted text vectorizer
+├── NoteBook_Experiments/        # Experiments
+│   ├── Exploratory Data Analysis.ipynb
+│   ├── Movie Recommendation System.ipynb
+│   └── Sentimental Analysis on Reviews.ipynb
+├── static/                      # autocomplete.js, recommend.js, style.css
+├── templates/                   # home.html, recommend.html
+├── .dvc/                        # DVC configuration
+├── infographic.svg              # Project infographic
 ├── Dockerfile
 ├── requirements.txt
-└── template.py                 # Project scaffolding script
+└── template.py                  # Project scaffolding script
 ```
 
 ## 🛠️ Tech Stack
@@ -70,8 +84,8 @@ Flask · scikit-learn · Pandas · NumPy · SciPy · NLTK · BeautifulSoup4 · l
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/KalyanMurapaka45/End-to-End-Movie-Recommendation-System.git
-cd End-to-End-Movie-Recommendation-System
+git clone https://github.com/Lakshyadu/Movie-Recommendation-System.git
+cd Movie-Recommendation-System
 
 # 2. (Recommended) Create and activate a virtual environment
 conda create -p venv python=3.8 -y
@@ -89,11 +103,15 @@ Then open **http://localhost:5000** in your browser.
 ### Option 2 — Run with Docker
 
 ```bash
-docker pull kalyan45/movierecommend-app
-docker run -p 5000:5000 kalyan45/movierecommend-app
+docker build -t movie-recommender .
+docker run -p 5000:5000 movie-recommender
 ```
 
 Then open **http://localhost:5000**.
+
+### 🔑 TMDB API key
+
+Movie details are fetched from TMDB in `static/recommend.js`. Create a free key at [themoviedb.org](https://www.themoviedb.org/settings/api) and set it as `my_api_key` in that file before deploying your own copy.
 
 ## 🔌 API Endpoints
 
@@ -105,10 +123,10 @@ Then open **http://localhost:5000**.
 
 ## 🗺️ Roadmap
 
+- [ ] Move the TMDB API key and other settings into environment variables
 - [ ] Cache IMDb reviews to reduce scraping latency
 - [ ] Add collaborative filtering and a hybrid recommender
 - [ ] Add automated tests and CI
-- [ ] Move configuration (API keys, ports) to environment variables
 
 ## 🤝 Contributing
 
@@ -125,13 +143,5 @@ You can also open an issue with the `enhancement` tag.
 ## 📄 License
 
 Distributed under the **GNU General Public License v3.0**. See [`LICENSE`](LICENSE) for details.
-
-## 🙏 Acknowledgements
-
-- [TMDB](https://www.themoviedb.org/) for movie and cast metadata
-- [IMDb](https://www.imdb.com/) for user reviews
-- The open-source maintainers of Flask, scikit-learn, Pandas, NLTK and the rest of the stack
-
----
 
 <div align="center">⭐ If you find this project useful, please give it a star!</div>
